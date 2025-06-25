@@ -1,10 +1,11 @@
 {
-  "name": "messenger-bot-python",
+  "name": "messenger-bot",
   "version": "1.0.0",
+  "main": "index.js",
   "scripts": {
     "start": "bash start.sh"
   },
   "dependencies": {
-    "fca-unofficial-fixed": "^1.0.0"
+    "fca-unofficial": "^1.0.0"
   }
 }

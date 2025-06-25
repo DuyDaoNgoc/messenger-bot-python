@@ -1,42 +1,35 @@
-const login = require("fca-unofficial-fixed");
-const { spawn } = require("child_process");
+const login = require("fca-unofficial");
+const { exec } = require("child_process");
 
-function callPythonLogic(message, callback) {
-  const py = spawn("python", ["logic.py"]);
-  let result = "";
+const email = process.env.FB_EMAIL;
+const password = process.env.FB_PASS;
 
-  py.stdin.write(JSON.stringify({ message }));
-  py.stdin.end();
-
-  py.stdout.on("data", (data) => {
-    result += data.toString();
-  });
-
-  py.stdout.on("end", () => {
-    try {
-      const output = JSON.parse(result);
-      callback(output.reply || "Không phản hồi");
-    } catch (e) {
-      callback("Lỗi khi đọc kết quả từ Python");
-    }
-  });
-
-  py.stderr.on("data", (data) => {
-    console.error("Lỗi Python:", data.toString());
-  });
-}
-
-login({ email: "EMAIL_FACEBOOK", password: "PASS_FACEBOOK" }, (err, api) => {
+login({ email, password }, (err, api) => {
   if (err) return console.error(err);
 
-  console.log("✅ Bot Messenger Python đang hoạt động...");
+  console.log("✅ Bot đã đăng nhập thành công!");
 
   api.listenMqtt((err, message) => {
-    if (err || !message.body) return;
-    const text = message.body;
+    if (err) return console.error(err);
 
-    callPythonLogic(text, (reply) => {
+    const msg = message.body;
+
+    // Gọi file logic.py để xử lý nội dung
+    exec(`python logic.py "${msg}"`, (error, stdout) => {
+      if (error) {
+        api.sendMessage("❌ Lỗi xử lý tin nhắn", message.threadID);
+        return;
+      }
+
+      const reply = stdout.trim();
       api.sendMessage(reply, message.threadID);
     });
   });
 });
+
+// 👇 Trick để Render Free Web Service không tắt bot
+require("http")
+  .createServer((req, res) => {
+    res.end("Bot is running!");
+  })
+  .listen(process.env.PORT || 3000);
