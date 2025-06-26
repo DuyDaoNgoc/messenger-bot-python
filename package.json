@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "bash start.sh"
+    "start": "node index.js"
   },
   "dependencies": {
-    "fca-unofficial": "^1.0.0"
+    "@dongdev/fca-unofficial": "^1.0.20",
+    "dotenv": "^16.5.0",
+    "fca-unofficial-fixed": "^1.0.20"
   }
 }
